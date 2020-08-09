@@ -1,2 +1,5 @@
 # post_card_maker_k
-ポストカードメーカーK  V0.1
+ポストカードメーカーK
+
+# Version 0.1
+#auther kenji uehara
