@@ -53,7 +53,7 @@ class PostCardMakerK{
 		// ファイルアップロードの要素を取得するテスト
 		let fuElm = jQuery(e.currentTarget);
 		//let id = fuElm.attr('id');
-
+		console.log('B1');//■■■□□□■■■□□□)
 		let files = e.target.files;
 		let oFile = files[0];
 		
@@ -63,7 +63,7 @@ class PostCardMakerK{
 
 		// After conversion of the event.
 		reader.onload = (evt) => {
-
+console.log('B2');//■■■□□□■■■□□□)
 			// accept属性を取得する
 			let accept = fuElm.attr('accept');
 
@@ -88,7 +88,7 @@ class PostCardMakerK{
 	 */
 	_loadDataUrlFromLs(){
 		let data_url = localStorage.getItem(this.ls_key_data_url);
-		if(this._empty(data_url)){
+		if(this._empty(data_url) || data_url == 'null'){
 			jQuery('#img1').attr('src', 'img/def.jpg');
 		}else{
 			jQuery('#img1').attr('src', data_url);

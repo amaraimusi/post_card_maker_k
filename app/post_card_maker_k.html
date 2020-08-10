@@ -20,9 +20,6 @@
 	<script src="/note_prg/js/livipage.js"></script>
 	<script src="/note_prg/js/ImgCompactK.js"></script>
 	
-	<script src="js/html2canvas.min.js"></script>
-	<script src="js/jquery.printElement.min.js"></script>
-	
 	<script src="js/PostCardMakerK.js?v=0.1"></script>
 	<script src="js/post_card_maker_k.js?v=0.1"></script>
 
@@ -41,9 +38,16 @@
 		横<input type="number" v-model="card_mm_w" style="width:60px" />cm × 
 		縦<input type="number" v-model="card_mm_h"  style="width:60px"/>cm
 	</div>
-	サイズ調整
-	<div style="width:200px"><input type="range" v-model="size_rate" min="1" max="10" step="0.1" v-on:change="blurSizeRate()" /></div>
 	
+	<div>
+		サイズ調整
+		<div style="width:200px;display:inline-block"><input type="range" v-model="size_rate" min="1" max="10" step="0.1" v-on:change="blurSizeRate()" /></div>
+	</div>
+	
+	<div style="margin-bottom:4px;">
+			画像を変更⇒
+			<div style="display:inline-block"><input id="img_fn" type="file" name="img_fn" accept="image/*" /></div>
+	</div>
 	<button type="button" v-if="edit_mode==1" v-on:click="configApply()" class="btn btn-success">適用</button>
 	<button type="button" v-if="edit_mode==0" v-on:click="clickEditMode()" class="btn btn-primary">編集</button>
 	<button type="button" v-if="edit_mode==0" onclick="printout()" class="btn btn-primary">印刷</button>
@@ -57,10 +61,7 @@
 			<img id="img1" src="img/def.jpg" style="width:100%;">
 		</div>
 		
-		<div v-if="edit_mode == 1" style="width:100%">
-			<input id="img_fn" type="file" name="img_fn" accept="image/*" /><br>
-			<div id="res" class="text-success"></div>
-		</div>
+
 		
 		<div id="midasi1" v-if="midasi1 != '' ">{{midasi1}}</div>
 		<div><input type="text" v-if="edit_mode==1" v-model="midasi1" style="width:100%" /></div>
@@ -98,4 +99,5 @@
 </div><!--  -->
 <div id="print_div"></div>
 </body>
+<div id="printout"></div>
 </html>
