@@ -4,25 +4,15 @@ body{
 
 #post_card{
 	background-color:white;
-	overflow:hidden;
-}
-
-.layers{
-	overflow:hidden;
-}
-
-#layer1{
-	width:200px;
-	height:100%;
-	overflow: hidden;
 	
 }
 
-#layer2{
-	position:absolute;
-	width:400px;
-	height:600px;
-	background: linear-gradient(to top, white, rgba(246,202,6,0.1));
+.post_card_normal{
+	overflow:hidden;
+}
+
+.post_card_edit{
+	
 }
 
 #l_div{
@@ -31,33 +21,9 @@ body{
 	float:left;
 }
 
-
-.frame1 {
-	display: inline-block;
-	position: relative;
-}
-.frame1:after {
-	position: absolute;
-	display: block;
-	content: "";
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background: #fff;
-	box-shadow:
-	inset 0 0 20px #fff /* îwåiêFÇ∆ìØÇ∂êF */,
-	inset 0 0 20px #fff,
-	inset 0 0 20px #fff,
-	inset 0 0 20px #fff;
-}
-
-
-
 #r_div{
 	width:50%;
 	height:100%;
-	padding-right:4%;
 	padding-left:4%;
 	float:left;
 }
