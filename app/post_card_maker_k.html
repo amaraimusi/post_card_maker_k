@@ -33,7 +33,7 @@
 
 
 <div id="config_div">
-	<div>
+	<div v-if="edit_mode==1">
 		ポストカードサイズ⇒
 		横<input type="number" v-model="card_mm_w" style="width:60px" />cm × 
 		縦<input type="number" v-model="card_mm_h"  style="width:60px"/>cm
