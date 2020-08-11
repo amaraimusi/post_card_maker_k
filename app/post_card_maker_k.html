@@ -9,21 +9,17 @@
 	<link rel='shortcut icon' href='/home/images/favicon.ico' />
 	
 	<link href="/note_prg/css/bootstrap.min.css" rel="stylesheet">
-	<link href="/note_prg/css/highlight/default.css" rel="stylesheet">
 	<link href="/note_prg/css/common2.css" rel="stylesheet">
 	<link href="css/post_card_maker_k.css" rel="stylesheet">
 	
 	<script src="/note_prg/js/jquery3.js"></script>	<!-- jquery-3.3.1.min.js -->
 	<script src="/note_prg/js/bootstrap.min.js"></script>
 	<script src="/note_prg/js/vue.min.js"></script>
-	<script src="/note_prg/js/highlight.pack.js"></script>
-	<script src="/note_prg/js/livipage.js"></script>
-	<script src="/note_prg/js/ImgCompactK.js"></script>
+	<script src="js/jquery.qrcode.min.js"></script>
 	
-	<script src="js/PostCardMakerK.js?v=0.1"></script>
-	<script src="js/post_card_maker_k.js?v=0.1"></script>
+	<script src="js/PostCardMakerK.js?v=1.0.0"></script>
+	<script src="js/post_card_maker_k.js?v=1.0.0"></script>
 
-	<script>hljs.initHighlightingOnLoad();</script>
 </head>
 <body>
 <div id="main">
@@ -53,6 +49,8 @@
 	<button type="button" v-if="edit_mode==0" onclick="printout()" class="btn btn-primary">印刷</button>
 </div>
 
+
+<!-- ポストカード -->
 <div id="post_card" v-bind:class="post_card_class" style="border:solid 15px white;">
 	
 	<div id="l_div" style="">
@@ -68,6 +66,25 @@
 		
 		<div  v-if="text1 != '' " style="white-space:pre-wrap; word-wrap:break-word;">{{ text1 }}</div>
 		<textarea v-model="text1" v-if="edit_mode==1" style="width:100%;height:100px"></textarea>
+		
+		<!-- QRコードまわり -->
+		<table style="width:100%"><tr>
+			<td>
+				<div id="qr_code"></div>
+			</td>
+			<td style="vertical-align:middle;text-align:right;color:#5a5a5a">
+				<div style="margin-left:4px;display:inline-block;">{{text4}}</div>
+			</td>
+		</tr></table>
+		<div v-if="edit_mode==1" style="width:95%;border: solid 1px #0e8ada;padding:1%">
+			QRコードのURL
+			<textarea v-model="qr_code_url" style="width:100%;height:100px"></textarea><br>
+			QRコードサイズ
+			<div style="width:100%;display:inline-block"><input type="range" v-model="pr_code_size" min="80" max="200" step="1" v-on:change="changeQrCodeSize()" /></div>
+			補足テキスト
+			<textarea v-model="text4" style="width:100%;height:100px"></textarea>
+		</div>
+		
 	</div>
 	<div id="r_div" >
 		<div style="width:100%;hight:50%;">

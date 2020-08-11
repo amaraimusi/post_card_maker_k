@@ -24,6 +24,7 @@ class PostCardMakerK{
 				clickEditMode:()=>{this._clickEditMode();}, // 編集モードにする
 				configApply:()=>{this._configApply();}, // 設定を適用する
 				blurSizeRate:()=>{this._sizeRefresh();}, // サイズ適用
+				changeQrCodeSize:()=>{this._changeQrCodeSize();}, // QRコードサイズ変更
 			filters: {
 					filPer: (value) => {
 						return value + '%';
@@ -43,6 +44,10 @@ class PostCardMakerK{
 		
 		this.data_url = this._loadDataUrlFromLs(); // ローカルから画像データURLスキームを取得しIMG要素にセットする。
 		
+		// ▽QRコード関連
+		this.qrCodeElm = jQuery('#qr_code'); // QRコード要素
+		this._makeQrCode(); // QRコードを作成
+		
 	}
 	
 	/**
@@ -52,8 +57,6 @@ class PostCardMakerK{
 	_imgPreview(e){
 		// ファイルアップロードの要素を取得するテスト
 		let fuElm = jQuery(e.currentTarget);
-		//let id = fuElm.attr('id');
-		console.log('B1');//■■■□□□■■■□□□)
 		let files = e.target.files;
 		let oFile = files[0];
 		
@@ -63,7 +66,7 @@ class PostCardMakerK{
 
 		// After conversion of the event.
 		reader.onload = (evt) => {
-console.log('B2');//■■■□□□■■■□□□)
+
 			// accept属性を取得する
 			let accept = fuElm.attr('accept');
 
@@ -131,6 +134,8 @@ console.log('B2');//■■■□□□■■■□□□)
 				card_mm_h:90,
 				size_rate:5, // 1mmあたりのcm
 				post_card_class:'post_card_normal',
+				qr_code_url:'https://wol.jw.org/',
+				pr_code_size:100,
 		};
 		
 		data['midasi1'] = "info";
@@ -140,7 +145,7 @@ console.log('B2');//■■■□□□■■■□□□)
 		data['text1'] = "JW.ORG® / エホバの証人の公式ウェブサイト";
 		data['text2'] = "聖書には，直接，恐竜に言及している箇所はありません。しかし，神様が「すべてのものを創造し」たと述べられているので，恐竜も神様が創造したと考えるのは理にかなっています。";
 		data['text3'] = "化石を研究すると，恐竜は徐々に進化したというより突然現われたことが分かります。これは，神様がすべての動物を創造されたとする聖書の記録と一致しています。一例として，詩編 146編6節は神様を，「天と地，海およびそれらの中にあるすべてのものの造り主」と呼んでいます。";
-		
+		data['text4'] = "JW.ORG® / エホバの証人の公式ウェブサイト\nhttps://www.jw.org/";
 		return data;
 	}
 	
@@ -174,6 +179,7 @@ console.log('B2');//■■■□□□■■■□□□)
 		this.app.post_card_class = 'post_card_normal';
 		this._sizeRefresh(); // サイズ更新
 		this._saveToLs(); // ローカルストレージへ保存
+		this._makeQrCode(); // QRコードを作成
 	}
 	
 	
@@ -245,6 +251,29 @@ console.log('B2');//■■■□□□■■■□□□)
 			return false;
 		}
 	}
+	
+	/**
+	 * QRコードの作成
+	 */
+	_makeQrCode(){
+		this.qrCodeElm.html(''); // 一旦リセット
+		
+		let qr_code_url = this.app.qr_code_url;
+		let pr_code_size = this.app.pr_code_size;
+		this.qrCodeElm.qrcode({
+				width:pr_code_size,
+				height:pr_code_size,
+				text: qr_code_url,
+		});
+	}
+	
+	/**
+	 * QRコードサイズ変更
+	 */
+	_changeQrCodeSize(){
+		this._makeQrCode(); // QRコードの作成
+	} 
+	
 }
 
 
