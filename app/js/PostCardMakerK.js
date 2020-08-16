@@ -37,17 +37,21 @@ class PostCardMakerK{
 		this.card = jQuery('#post_card');
 		this._sizeRefresh();
 		
-		// 画像アップロードイベント
-		jQuery("#img_fn").change((e) =>{
-			this._imgPreview(e);// 画像プレビューを表示
-		});
-		
 		this.data_url = this._loadDataUrlFromLs(); // ローカルから画像データURLスキームを取得しIMG要素にセットする。
-		
+
 		// ▽QRコード関連
 		this.qrCodeElm = jQuery('#qr_code'); // QRコード要素
 		this._makeQrCode(); // QRコードを作成
 		
+
+		
+	}
+	
+	/**
+	 * 画像ファイルチェンジイベント
+	 */
+	changeImgFn(e){
+		this._imgPreview(e);// 画像プレビューを表示
 	}
 	
 	/**
@@ -55,9 +59,16 @@ class PostCardMakerK{
 	 * @param e ファイルアプロードのイベントオブジェクト
 	 */
 	_imgPreview(e){
-		// ファイルアップロードの要素を取得するテスト
-		let fuElm = jQuery(e.currentTarget);
-		let files = e.target.files;
+		
+		
+//		console.log(e);//■■■□□□■■■□□□)
+//		// ファイルアップロードの要素を取得するテスト
+//		let fuElm = jQuery(e.currentTarget);
+//		let files = e.target.files;
+		
+		let fuElm = jQuery(e);
+		
+		let files = e.files;
 		let oFile = files[0];
 		
 		// Converting from a file object to a data url scheme.Conversion process by the asynchronous.

@@ -25,3 +25,10 @@ function printout(){
 	jQuery('#printout').html('');
 	
 }
+
+/**
+ * 画像ファイルチェンジイベント
+ */
+function changeImgFn(e){
+	pcmk.changeImgFn(e);
+}
