@@ -1,5 +1,7 @@
 <?php 
+session_start();
 $csrf_token = md5(uniqid(rand(),1)); // CSRFトークン
+$_SESSION['csrf_token'] = $csrf_token;
 ?>
 
 <!DOCTYPE html>
@@ -34,7 +36,7 @@ $csrf_token = md5(uniqid(rand(),1)); // CSRFトークン
 
 <div v-if="info.new_flg==1">
 	メールアドレスを入力してください。（メールアドレスでなくても可。）
-	<input type="text" v-model="ent.email" style="width:100%" placeholder="exsample@example.com" />
+	<input type="text" v-model="info.email" style="width:100%" placeholder="exsample@example.com" />
 	<button class="btn btn-success" v-on:click="regMailaddr()" >次へ</button>
 	メールアドレスを元にデータをデータベースに保存します。
 	これにより別のパソコンや端末でも作成したデータの読み出しが可能になります。
@@ -43,10 +45,22 @@ $csrf_token = md5(uniqid(rand(),1)); // CSRFトークン
 
 <div v-if="info.new_flg==0">
 <div id="config_div">
+	
 	<div v-if="info.edit_mode==1">
-		ポストカードサイズ⇒
-		横<input type="number" v-model="ent.card_mm_w" style="width:60px" />cm × 
-		縦<input type="number" v-model="ent.card_mm_h"  style="width:60px"/>cm
+		<div>
+			ポストカードサイズ⇒
+			横<input type="number" v-model="ent.card_mm_w" style="width:60px" />cm × 
+			縦<input type="number" v-model="ent.card_mm_h"  style="width:60px"/>cm
+		</div>
+		<div>
+			<select v-model="info.active_data_index" v-on:change="changeSlot()">
+				<option v-for="(value, i) in slots" v-bind:value="i">
+					{{ value }}
+				</option>
+			</select>
+			<input type="text" v-model="new_slot" />
+			<button type="button" v-on:click="addSlots()" class="btn btn-primary btn-sm">追加</button>
+		</div>
 	</div>
 	
 
@@ -59,16 +73,17 @@ $csrf_token = md5(uniqid(rand(),1)); // CSRFトークン
 	<button type="button" v-if="info.edit_mode==1" v-on:click="configApply()" class="btn btn-success">適用</button>
 	<button type="button" v-if="info.edit_mode==0" v-on:click="clickEditMode()" class="btn btn-primary">編集</button>
 	<button type="button" v-if="info.edit_mode==0" onclick="printout()" class="btn btn-primary">印刷</button>
+	<span>ユーザー：</span><span>{{info.email}}</span>
 </div>
 
 
 <!-- ポストカード -->
-<div id="post_card" v-bind:class="ent.post_card_class" style="border:solid 15px white;">
+<div id="post_card" v-bind:class="info.post_card_class" style="border:solid 15px white;">
 	
 	<div id="l_div" style="">
 		
 		<div  class="blur" style="width:100%;height:auto;overflow: hidden;">
-			<img id="img1" src="img/def.jpg" style="width:100%;">
+			<img id="img1" v-bind:src="ent.img_fn | filImgFn" style="width:100%;">
 		</div>
 		<div v-if="info.edit_mode==1" style="margin-bottom:4px;">
 				画像を変更⇒

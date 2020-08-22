@@ -23,44 +23,9 @@ class PostCardMakerK{
 		if(email == ''){
 			this._showData(); // 画面にデータを表示
 		}else{
-			this._getBoxByAjax(); // Ajaxを通してデータ取得を行う。
+			let afterGetBox = this._afterGetBox.bind(this); // Ajaxによるデータ取得後
+			this._getBoxByAjax(afterGetBox); // Ajaxを通してデータ取得を行う。
 		}
-		
-		
-		
-
-		
-//		this.ls_key = this._getLsKey(); // ローカルストレージキー
-//		this.ls_key_data_url = this._getLsKeyForDataUrl(); // ローカルストレージキー(データURLスキーム）
-//		let data = this._getData();
-//
-//		this.app = new Vue({
-//			el: '#app1',
-//			data: data,
-//			methods: {
-//				clickEditMode:()=>{this._clickEditMode();}, // 編集モードにする
-//				configApply:()=>{this._configApply();}, // 設定を適用する
-//				blurSizeRate:()=>{this._sizeRefresh();}, // サイズ適用
-//				changeQrCodeSize:()=>{this._changeQrCodeSize();}, // QRコードサイズ変更
-//			filters: {
-//					filPer: (value) => {
-//						return value + '%';
-//					}
-//				},
-//			}
-//		});
-//		
-//		
-//		this.card = jQuery('#post_card');
-//		this._sizeRefresh();
-//		
-//		this.data_url = this._loadDataUrlFromLs(); // ローカルから画像データURLスキームを取得しIMG要素にセットする。
-//
-//		// ▽QRコード関連
-//		this.qrCodeElm = jQuery('#qr_code'); // QRコード要素
-//		this._makeQrCode(); // QRコードを作成
-		
-
 		
 	}
 	
@@ -71,12 +36,14 @@ class PostCardMakerK{
 				
 		let active_data_index = this.box.info.active_data_index; // アクティブデータインデックス
 		let ent = this.box.data[active_data_index];
-		
+
 			this.app = new Vue({
 			el: '#app1',
 			data: {
 				info:this.box.info,
+				slots:this.box.slots,
 				ent:ent,
+				new_slot:'', // 新規追加スロット
 			},
 			methods: {
 				regMailaddr:() => {this._regMailaddr();}, // メールアドレス登録ボタンクリック（「次へ」ボタン）
@@ -84,20 +51,24 @@ class PostCardMakerK{
 				configApply:()=>{this._configApply();}, // 設定を適用する
 				blurSizeRate:()=>{this._sizeRefresh();}, // サイズ適用
 				changeQrCodeSize:()=>{this._changeQrCodeSize();}, // QRコードサイズ変更
+				addSlots:()=>{this._addSlots()}, // スロット新規追加
+				changeSlot:()=>{this._changeSlot()}, // スロット変更
+			},
 			filters: {
-					filPer: (value) => {
-						return value + '%';
-					}
+				filPer: (value) => {
+					return value + '%';
 				},
-			}
+				filImgFn:(value) => {
+					let u = jQuery.now(); // UNIXタイムスタンプ
+					return 'img/' + value + '?v=' + u;
+				},
+			},
 		});
 		
 		
 		this.card = jQuery('#post_card');
 		this._sizeRefresh();
 		
-		this.data_url = this._loadDataUrlFromLs(); // ローカルから画像データURLスキームを取得しIMG要素にセットする。
-	
 		// ▽QRコード関連
 		this.qrCodeElm = jQuery('#qr_code'); // QRコード要素
 		this._makeQrCode(); // QRコードを作成
@@ -106,9 +77,68 @@ class PostCardMakerK{
 	/**
 	 * Ajaxを通してデータ取得を行う。
 	 */
-	_getBoxByAjax(){
+	_getBoxByAjax(callback){
+
+		// バックエンド側に送信するデータ
+		let fd = new FormData(); // 送信フォームデータ
+		let sendData = {
+				email:this.box.info.email,
+				csrf_token:this.csrf_token, // CSRFトークン
+		}; 
+		
+		let json = JSON.stringify(sendData);
+		fd.append( "key1", json );
+		
+		jQuery.ajax({
+			type: "post",
+			url: 'ajax/get_box.php',
+			data: fd,
+			cache: false,
+			dataType: "text",
+			processData: false,
+			contentType: false,
+
+		}).done((str_json, type) => {
+
+			let res = null;
+			try{
+				res = JSON.parse(str_json);
+			}catch(e){
+				alert('データのエラー :' + str_json);
+				console.log(str_json);
+				this._err(str_json);
+				return;
+			}
+
+			// コールバックを実行
+			if(callback!=null){
+				callback(res);
+			}
+			
+
+		}).fail((jqXHR, statusText, errorThrown) => {
+			alert(statusText);
+			console.log('通信エラー');
+			this._err(jqXHR.responseText);
+		});
 		
 	}
+	
+	
+	/**
+	 * Ajaxによるデータ取得後
+	 */
+	_afterGetBox(box){
+
+		if(box != null){
+			jQuery.extend(true,this.box, box); // マージ
+		}
+		
+		
+		this._showData(); // 画面にデータを表示
+		
+	}
+	
 	
 	
 	/**
@@ -116,6 +146,7 @@ class PostCardMakerK{
 	 */
 	changeImgFn(e){
 		this._imgPreview(e);// 画像プレビューを表示
+		
 	}
 	
 	/**
@@ -128,7 +159,7 @@ class PostCardMakerK{
 		
 		let files = e.files;
 		let oFile = files[0];
-		
+
 		// Converting from a file object to a data url scheme.Conversion process by the asynchronous.
 		let reader = new FileReader();
 		reader.readAsDataURL(oFile);
@@ -146,27 +177,10 @@ class PostCardMakerK{
 				
 				// IMG要素に画像を表示する
 				let imgElm = jQuery("#img1");
-				//imgElm.attr('src',reader.result);
 				imgElm.attr('src', data_url);
 
 			} 
 		}
-	}
-	
-	
-	/**
-	 * ローカルから画像データURLスキームを取得しIMG要素にセットする。
-	 * @return 画像データURLスキーム
-	 */
-	_loadDataUrlFromLs(){
-		let data_url = localStorage.getItem(this.ls_key_data_url);
-		if(this._empty(data_url) || data_url == 'null'){
-			jQuery('#img1').attr('src', 'img/def.jpg');
-		}else{
-			jQuery('#img1').attr('src', data_url);
-		}
-		
-		return data_url;
 	}
 	
 	
@@ -185,26 +199,6 @@ class PostCardMakerK{
 
 	}
 	
-	//■■■□□□■■■□□□
-//	/**
-//	 * データを取得
-//	 */
-//	_getData(){
-//
-//		let data = this._getDefEnt(); // デフォルトデータを取得する
-//		let dataLs = this._getBoxFromLs(); // ローカルストレージからデータを取得する
-//		
-//		// マージ
-//		if(!this._empty(dataLs)){
-//			for(let key in data ){
-//				if(dataLs[key] !== undefined){
-//					data[key] = dataLs[key];
-//				}
-//			}
-//		}
-//
-//		return data;
-//	}
 	
 	/**
 	 * デフォルトボックスを取得する
@@ -212,7 +206,9 @@ class PostCardMakerK{
 	_getDefBox(){
 		
 		let info = {
+				id:0,
 				edit_mode:0,
+				post_card_class:'post_card_normal',
 				email:'',
 				active_data_index:0, // アクティブデータインデックス
 				new_flg:1, // 新規フラグ 0:既存データ有り, 1:新規
@@ -229,8 +225,15 @@ class PostCardMakerK{
 			data.push(ent);
 		}
 		
+		let slots = [];
+		for(let i in data){
+			let ent = data[i];
+			slots.push(ent.midasi1);
+		}
+		
 		let box = {
 				info:info,
+				slots:slots,
 				data:data,
 		}
 		
@@ -249,9 +252,9 @@ class PostCardMakerK{
 				card_mm_w:140,
 				card_mm_h:90,
 				size_rate:5, // 1mmあたりのcm
-				post_card_class:'post_card_normal',
 				qr_code_url:'https://wol.jw.org/',
 				pr_code_size:100,
+				img_fn:'def.jpg',
 		};		
 		ent['midasi1'] = "見出し1";
 		ent['midasi2'] = "見出し2";
@@ -295,18 +298,18 @@ class PostCardMakerK{
 	 */
 	_sizeRefresh(){
 		let app = this.app;
-		app.card_width = app.card_mm_w * app.size_rate;
-		app.card_height = app.card_mm_h * app.size_rate;
-		this.card.width(app.card_width);
-		this.card.height(app.card_height);
+		app.ent.card_width = app.ent.card_mm_w * app.ent.size_rate;
+		app.ent.card_height = app.ent.card_mm_h * app.ent.size_rate;
+		this.card.width(app.ent.card_width);
+		this.card.height(app.ent.card_height);
 	}
 	
 	/**
 	 * 編集モードにする
 	 */
 	_clickEditMode(){
-		this.app.edit_mode = 1;
-		this.app.post_card_class = 'post_card_edit';
+		this.app.info.edit_mode = 1;
+		this.app.info.post_card_class = 'post_card_edit';
 	}
 	
 	
@@ -314,11 +317,24 @@ class PostCardMakerK{
 	 * 設定適用
 	 */
 	_configApply(){
-		this.app.edit_mode = 0; // 編集モードOFF
-		this.app.post_card_class = 'post_card_normal';
+		
+		this.app.info.edit_mode = 0; // 編集モードOFF
 		this._sizeRefresh(); // サイズ更新
 		this._saveToLs(); // ローカルストレージへ保存
 		this._makeQrCode(); // QRコードを作成
+
+		let afterCofigApply = this._afterCofigApply.bind(this); // 設定適用Ajax後処理
+		this._saveBoxByAjax(afterCofigApply);
+		
+		
+	}
+	
+	
+	/**
+	 * 設定適用Ajax後処理
+	 */
+	_afterCofigApply(){
+		this.app.info.post_card_class = 'post_card_normal';
 	}
 	
 	
@@ -348,10 +364,7 @@ class PostCardMakerK{
 		}
 		var data_json = JSON.stringify(data2);
 		localStorage.setItem(this.ls_key, data_json);
-		
-		
-		// 画像データURLスキームをローカルストレージに保存
-		localStorage.setItem(this.ls_key_data_url, this.data_url);
+
 	}
 	
 	/**
@@ -429,7 +442,9 @@ class PostCardMakerK{
 	 */
 	_afterRegMailaddr(){
 		this.app.info.new_flg=0; // 既存にする
-		console.log('_afterRegMailaddr22');//■■■□□□■■■□□□)
+		
+		this._saveToLs(); // ローカルストレージへ保存
+
 	}
 	
 	
@@ -453,9 +468,12 @@ class PostCardMakerK{
 		let json = JSON.stringify(sendData);
 		fd.append( "key1", json );
 		
-		// CSRFトークンを送信フォームデータにセットする。
-		let token = jQuery('#csrf_token').val();
-		fd.append( "_token", token );
+		// ファイル要素をセット
+		let fileElm = jQuery('#img_fn');
+		let files = fileElm.prop("files");
+		if(files[0] != null) {
+			fd.append( "imgFile", files[0]);
+		}
 		
 		jQuery.ajax({
 			type: "post",
@@ -468,10 +486,9 @@ class PostCardMakerK{
 
 		}).done((str_json, type) => {
 
-			console.log('レスポンスOK');
-			let data = null;
+			let res = null;
 			try{
-				data =jQuery.parseJSON(str_json);//パース
+				res =jQuery.parseJSON(str_json);//パース
 			}catch(e){
 				alert('データのエラー:' + str_json);
 				console.log(str_json);
@@ -479,11 +496,10 @@ class PostCardMakerK{
 				return;
 			}
 			
-			let res = '';
-			for(let field in data){
-				res += field + ' = ' + data[field] + '<br>';
-			}
-			
+			// idをセット
+			let id = res.id;
+			this.app.info.id = id;
+
 			// コールバックを実行
 			if(callBack!=null){
 				callBack();
@@ -505,6 +521,35 @@ class PostCardMakerK{
 		errElm.show();
 		errElm.html(err_msg);
 	}
+	
+	
+	/**
+	 * スロット新規追加
+	 */
+	_addSlots(){
+
+		let new_slot = this.app.new_slot; // 新規追加スロット
+		if(new_slot.trim == '') return; // 新規追加スロットの名称が空なら何もしない。
+		
+		let newEnt = this._getDefEnt(); // デフォルトエンティティを取得
+		newEnt.midasi1 = new_slot; // 新規追加ストっと名を見出し1にセットする。
+		
+		this.box.data.push(newEnt);
+		this.app.slots.push(new_slot);
+		
+	}
+	
+	/**
+	 * スロット変更
+	 */
+	_changeSlot(){
+
+		let active_data_index = this.app.info.active_data_index; // アクティブデータインデックス
+		let ent = this.box.data[active_data_index];
+		this.app.ent = ent;
+		
+	}
+	
 	
 	
 }
