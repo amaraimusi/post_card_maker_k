@@ -67,15 +67,16 @@ class Model{
 	 * @return string $img_fn 画像ファイル名
 	 */
 	public function fileUpload($files, &$box){
-		$img_fn = 'def.jpg';
+		$img_fn = '';
 		if(!empty($files["imgFile"]) != null){
 			$img_fn = $files["imgFile"]["name"]; // 画像ファイル名を取得
 			
 			$id = $box['info']['id'];
+			$active_data_index = $box['info']['active_data_index']; // アクティブデータ・インデックス
 			$pi = pathinfo($img_fn);
 			$ext =  $pi['extension'];	// ファイル名から拡張子を取得する
 			$ext = mb_strtolower($ext);
-			$img_fn = $id . '.' . $ext;
+			$img_fn = "{$id}_{$active_data_index}.{$ext}";
 			$img_fp ='../img/' . $img_fn; // 画像ファイルパスを組み立て
 			
 			// 画像ファイルコピー（配置）

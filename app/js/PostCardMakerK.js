@@ -576,6 +576,9 @@ class PostCardMakerK{
 			// idをセット
 			let id = res.id;
 			this.app.info.id = id;
+			
+			// 画像ファイル名を変更
+			this.app.ent.img_fn = res.img_fn;
 
 			// コールバックを実行
 			if(callBack!=null){
