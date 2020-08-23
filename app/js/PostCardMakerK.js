@@ -430,23 +430,27 @@ class PostCardMakerK{
 		// メール存在チェック
 		this._mailExitCheck(email, 
 				()=>{
-					// メールがDBに存在する場合の処理
-					this._getBoxByAjax((box)=>{
-							if(box != null){
-								jQuery.extend(true, this.box, box); // マージ
-								this.box = this._refreshSlots(this.box); // スロットをデータに合わせてリフレッシュする。
-								let active_data_index = this.box.info.active_data_index; // アクティブデータインデックス
-								this.app.ent = this.box.data[active_data_index];
-								this.app.info = this.box.info;
-								this.app.slots = this.box.slots;
-							}
-							this.app.info.new_flg=0; // 既存状態にする。（ポストカード画面の表示）
-							this._sizeRefresh(); // サイズ更新
-					});
+//					// メールがDBに存在する場合の処理
+//					this._getBoxByAjax((box)=>{
+//							if(box != null){
+//								jQuery.extend(true, this.box, box); // マージ
+//								this.box = this._refreshSlots(this.box); // スロットをデータに合わせてリフレッシュする。
+//								let active_data_index = this.box.info.active_data_index; // アクティブデータインデックス
+//								this.app.ent = this.box.data[active_data_index];
+//								this.app.info = this.box.info;
+//								this.app.slots = this.box.slots;
+//							}
+//							this.app.info.new_flg=0; // 既存状態にする。（ポストカード画面の表示）
+//							this._sizeRefresh(); // サイズ更新
+//					});
+					//this.box.info.new_flg = 0; // 既存状態にする。
+					this._saveToLs();
+					location.reload(true);
 					
 				},
 				()=>{
 					// メールがDBに存在しない場合の処理
+					this.app.info.new_flg=0; // 既存にする
 					let callBack = this._afterRegMailaddr.bind(this);// コールバック
 					this._saveBoxByAjax(callBack); // Ajaxによるボックスのデータ保存
 				}
@@ -516,10 +520,9 @@ class PostCardMakerK{
 	 * メールアドレス登録後の処理
 	 */
 	_afterRegMailaddr(){
-		this.app.info.new_flg=0; // 既存にする
 		
 		this._saveToLs(); // ローカルストレージへ保存
-
+		location.reload(true);
 	}
 	
 	

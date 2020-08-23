@@ -23,8 +23,8 @@ $_SESSION['csrf_token'] = $csrf_token;
 	<script src="/note_prg/js/vue.min.js"></script>
 	<script src="js/jquery.qrcode.min.js"></script>
 	
-	<script src="js/PostCardMakerK.js?v=1.0.0"></script>
-	<script src="js/post_card_maker_k.js?v=1.0.0"></script>
+	<script src="js/PostCardMakerK.js?v=2.0.0"></script>
+	<script src="js/post_card_maker_k.js?v=2.0.0"></script>
 
 </head>
 <body>
@@ -108,9 +108,8 @@ $_SESSION['csrf_token'] = $csrf_token;
 				画像を変更⇒
 				<div style="display:inline-block"><input id="img_fn" type="file" name="img_fn" accept="image/*" onchange="changeImgFn(this)" /></div>
 		</div>
-		<div>{{ent.img_fn | filImgFn}}</div>
 		
-		<div id="ent.midasi1" v-if="ent.midasi1 != '' ">{{ent.midasi1}}</div>
+		<div id="ent.midasi1" v-if="ent.midasi1 != '' " class="midasi">{{ent.midasi1}}</div>
 		<div><input type="text" v-if="info.edit_mode==1" v-model="ent.midasi1" style="width:100%" /></div>
 		
 		<div  v-if="ent.text1 != '' " style="white-space:pre-wrap; word-wrap:break-word;">{{ ent.text1 }}</div>
@@ -137,13 +136,13 @@ $_SESSION['csrf_token'] = $csrf_token;
 	</div>
 	<div id="r_div" >
 		<div style="width:100%;hight:50%;">
-			<div v-if="ent.midasi2 != '' "  id="ent.midasi2">{{ent.midasi2}}</div>
+			<div  v-if="ent.midasi2 != '' "  id="ent.midasi2" class="midasi">{{ent.midasi2}}</div>
 			<div><input type="text" v-if="info.edit_mode==1" v-model="ent.midasi2" style="width:100%" /></div>
 			
 			<div  v-if="ent.text2 != '' " style="white-space:pre-wrap; word-wrap:break-word;">{{ ent.text2 }}</div>
 			<textarea v-model="ent.text2" v-if="info.edit_mode==1" style="width:100%;height:100px"></textarea>
 			
-			<div v-if="ent.midasi3 != '' "  id="ent.midasi3">{{ent.midasi3}}</div>
+			<div v-if="ent.midasi3 != '' "  id="ent.midasi3" class="midasi">{{ent.midasi3}}</div>
 			<div><input type="text" v-if="info.edit_mode==1" v-model="ent.midasi3" style="width:100%" /></div>
 			
 			<div  v-if="ent.text3 != '' " style="white-space:pre-wrap; word-wrap:break-word;">{{ ent.text3 }}</div>
