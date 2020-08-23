@@ -36,7 +36,7 @@ $_SESSION['csrf_token'] = $csrf_token;
 
 <div v-if="info.new_flg==1">
 	メールアドレスを入力してください。（メールアドレスでなくても可。）
-	<input type="text" v-model="info.email" style="width:100%" placeholder="exsample@example.com" />
+	<input id="email_text" type="text" v-model="info.email" style="width:100%" placeholder="exsample@example.com" autocomplete="on" />
 	<button class="btn btn-success" v-on:click="regMailaddr()" >次へ</button>
 	メールアドレスを元にデータをデータベースに保存します。
 	これにより別のパソコンや端末でも作成したデータの読み出しが可能になります。
@@ -47,20 +47,39 @@ $_SESSION['csrf_token'] = $csrf_token;
 <div id="config_div">
 	
 	<div v-if="info.edit_mode==1">
-		<div>
-			ポストカードサイズ⇒
-			横<input type="number" v-model="ent.card_mm_w" style="width:60px" />cm × 
-			縦<input type="number" v-model="ent.card_mm_h"  style="width:60px"/>cm
-		</div>
-		<div>
-			<select v-model="info.active_data_index" v-on:change="changeSlot()">
-				<option v-for="(value, i) in slots" v-bind:value="i">
-					{{ value }}
-				</option>
-			</select>
-			<input type="text" v-model="new_slot" />
-			<button type="button" v-on:click="addSlots()" class="btn btn-primary btn-sm">追加</button>
-		</div>
+		<table style="width:100%"><tbody>
+			<td>
+				ポストカードサイズ⇒
+				横<input type="number" v-model="ent.card_mm_w" style="width:60px" />cm × 
+				縦<input type="number" v-model="ent.card_mm_h"  style="width:60px"/>cm
+			</td>
+			<td style="text-aligin:center">
+				スロット選択（データ選択）：
+				<select v-model="info.active_data_index" v-on:change="changeSlot()">
+					<option v-for="(value, i) in slots" v-bind:value="i">
+						{{ value }}
+					</option>
+				</select>
+			</td>
+			<td style="text-aligin:right">
+				<button type="button" class="btn btn-default btn-sm" onclick="jQuery('#config_div2').toggle(300)">設定</button>
+			</td>
+		</tbody></table>
+	</div>
+	
+	<div id="config_div2" style="padding:8px;margin:4px;background-color:#bfeeec;display:none">
+		<table><tbody>
+			<tr>
+				<td>新しいスロット選択肢を追加</td>
+				<td style="padding:left:4px;">
+					<input type="text" v-model="new_slot" placeholder="-- スロット名（見出し1) --" />
+					<button type="button" v-on:click="addSlots()" class="btn btn-primary btn-sm">追加</button>
+				</td>
+			</tr>
+			<tr>
+				<td><button type="button" v-on:click="clearLs()" class="btn btn-default btn-xs" title="ブラウザで保存しているキャッシュ（ローカルストレージ）をクリアする。">キャッシュクリア</button></td>
+			</tr>
+		</tbody></table>
 	</div>
 	
 
@@ -74,11 +93,11 @@ $_SESSION['csrf_token'] = $csrf_token;
 	<button type="button" v-if="info.edit_mode==0" v-on:click="clickEditMode()" class="btn btn-primary">編集</button>
 	<button type="button" v-if="info.edit_mode==0" onclick="printout()" class="btn btn-primary">印刷</button>
 	<span>ユーザー：</span><span>{{info.email}}</span>
-</div>
+</div><!-- config-div -->
 
 
 <!-- ポストカード -->
-<div id="post_card" v-bind:class="info.post_card_class" style="border:solid 15px white;">
+<div id="post_card" v-bind:class="info.post_card_class" style="border:solid 15px white;display:inline-block">
 	
 	<div id="l_div" style="">
 		
@@ -89,6 +108,7 @@ $_SESSION['csrf_token'] = $csrf_token;
 				画像を変更⇒
 				<div style="display:inline-block"><input id="img_fn" type="file" name="img_fn" accept="image/*" onchange="changeImgFn(this)" /></div>
 		</div>
+		<div>{{ent.img_fn | filImgFn}}</div>
 		
 		<div id="ent.midasi1" v-if="ent.midasi1 != '' ">{{ent.midasi1}}</div>
 		<div><input type="text" v-if="info.edit_mode==1" v-model="ent.midasi1" style="width:100%" /></div>
@@ -128,9 +148,10 @@ $_SESSION['csrf_token'] = $csrf_token;
 			
 			<div  v-if="ent.text3 != '' " style="white-space:pre-wrap; word-wrap:break-word;">{{ ent.text3 }}</div>
 			<textarea v-model="ent.text3" v-if="info.edit_mode==1" style="width:100%;height:100px"></textarea>
-
 		</div>
-	</div>
+	</div><!-- r_div -->
+</div><!-- post_card -->
+<br>
 	
 </div><!-- new_flg -->
 </div><!-- vue app -->
