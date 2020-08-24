@@ -46,11 +46,13 @@ class PostCardMakerK{
 				slots:this.box.slots,
 				ent:ent,
 				new_slot:'', // 新規追加スロット
+				save_btn2_flg:0, // 保存2ボタン表示フラグ
 			},
 			methods: {
 				regMailaddr:() => {this._regMailaddr();}, // メールアドレス登録ボタンクリック（「次へ」ボタン）
 				clickEditMode:()=>{this._clickEditMode();}, // 編集モードにする
-				configApply:()=>{this._configApply();}, // 設定を適用する
+				save:()=>{this._save();}, // 保存ボタンを押下
+				save2:()=>{this._save2();}, // 保存2ボタンを押下
 				blurSizeRate:()=>{this._sizeRefresh();}, // サイズ適用
 				changeQrCodeSize:()=>{this._changeQrCodeSize();}, // QRコードサイズ変更
 				addSlots:()=>{this._addSlots()}, // スロット新規追加
@@ -70,6 +72,7 @@ class PostCardMakerK{
 		
 		
 		this._sizeRefresh();
+		this.app.save_btn2_flg = 0;
 		
 		// ▽QRコード関連
 		this.qrCodeElm = jQuery('#qr_code'); // QRコード要素
@@ -277,15 +280,15 @@ class PostCardMakerK{
 	_setSample(ent){
 		
 		
+		ent['midasi1'] = "人生の目的";
+		ent['midasi2'] = "人生の目的を知る方法の一つ";
+		ent['midasi3'] = "神の目的を一言で表すと";
 		ent['qr_code_url'] = 'https://wol.jw.org/';
-		ent['midasi1'] = "恐竜と聖書";
-		ent['midasi2'] = "恐竜について聖書は何と述べていますか";
-		ent['midasi3'] = "恐竜は他の動物から進化したのか";
 		
-		ent['text1'] = "JW.ORG® / エホバの証人の公式ウェブサイト";
-		ent['text2'] = "聖書には，直接，恐竜に言及している箇所はありません。しかし，神様が「すべてのものを創造し」たと述べられているので，恐竜も神様が創造したと考えるのは理にかなっています。";
-		ent['text3'] = "化石を研究すると，恐竜は徐々に進化したというより突然現われたことが分かります。これは，神様がすべての動物を創造されたとする聖書の記録と一致しています。一例として，詩編 146編6節は神様を，「天と地，海およびそれらの中にあるすべてのものの造り主」と呼んでいます。";
-		ent['text4'] = "JW.ORG® / エホバの証人の公式ウェブサイト\nhttps://www.jw.org/";
+		ent['text1'] = "人生の目的についての有名な言葉、「人はなぜ生き、人はどこへ向かうのか」。多くの人にとっての疑問です。";
+		ent['text2'] = "もし神が存在しており、人を造ったのであればどうでしょうか。\n神が人間を造ったのであるならば、その目的を神は知っているはずです。\nでは神の目的とは何でしょうか？";
+		ent['text3'] = "罪人がいない世で、徳の高い人々を永遠に暮らせるようにする。\nローマ 6:23\n\nつまり、病気や死や犯罪がない世の中で生きることが人生の目的の一つだと聖書は教えています。";
+		ent['text4'] = "エホバの証人の公式ウェブサイト";
 		
 		return ent;
 	
@@ -303,8 +306,11 @@ class PostCardMakerK{
 		let app = this.app;
 		app.ent.card_width = app.ent.card_mm_w * app.ent.size_rate;
 		app.ent.card_height = app.ent.card_mm_h * app.ent.size_rate;
+		this.card = jQuery('#post_card');
 		this.card.width(app.ent.card_width);
 		this.card.height(app.ent.card_height);
+		
+		this.app.save_btn2_flg = 1; // 保存2ボタンを表示する。
 	}
 	
 	/**
@@ -317,9 +323,9 @@ class PostCardMakerK{
 	
 	
 	/**
-	 * 設定適用
+	 * 保存ボタン押下
 	 */
-	_configApply(){
+	_save(){
 		
 		this.app.info.edit_mode = 0; // 編集モードOFF
 		this._sizeRefresh(); // サイズ更新
@@ -330,6 +336,14 @@ class PostCardMakerK{
 		this._saveBoxByAjax(afterCofigApply);
 		
 		
+	}
+	
+	/**
+	 * 保存2ボタン押下
+	 */
+	_save2(){
+		this._save();
+		this.app.save_btn2_flg = 0; // 保存2ボタンを非表示にする。
 	}
 	
 	
@@ -581,7 +595,9 @@ class PostCardMakerK{
 			this.app.info.id = id;
 			
 			// 画像ファイル名を変更
-			this.app.ent.img_fn = res.img_fn;
+			if(res.img_fn != ''){
+				this.app.ent.img_fn = res.img_fn;
+			}
 
 			// コールバックを実行
 			if(callBack!=null){
